@@ -11,10 +11,11 @@ var http = require('http');
 var https = require('https');
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
-var config = require('./config');
+var config = require('./lib/config');
 const fs = require('fs');
 const _data = require('./lib/data');
-
+const handlers = require('./lib/handler');
+const helpers = require('./lib/helpers');
 
 
 
@@ -45,9 +46,6 @@ httpsServer.listen(config.httpsPort,function(){
   console.log("Listening on port "+config.httpsPort +" on "+config.envName+" mode");
 })
 
-
-// Defining the handlers
-var handlers ={}
 
 // Unified Server Logic for all servers http and https
 var unifiedLogic = function (req,res) {
@@ -88,16 +86,18 @@ var unifiedLogic = function (req,res) {
         console.log('\nPayload recieved : ', buffer);
       }
 
-      var requestHandler = typeof(router[trimmedPath]) != 'undefined' ? router[trimmedPath] : handlers.default;
 
       // data to send to the response handler
       var data = {
-        'path' : trimmedPath,
-        'queryStringObject' : queryString,
-        'method' : method,
-        'headers' : headers,
-        'payload' : buffer
+            'path' : trimmedPath,
+            'queryStringObject' : queryString,
+            'method' : method,
+            'headers' : headers,
+            'payload' : helpers.parseJsonToObject(buffer)
       };
+
+      var requestHandler = typeof(router[trimmedPath]) != 'undefined' ? router[trimmedPath] : handlers.default;
+
 
       requestHandler(data,function(statusCode,payload) {
         statusCode = typeof(statusCode) == 'number' ? statusCode : 500;
@@ -122,21 +122,8 @@ var unifiedLogic = function (req,res) {
 }
 
 
-
-// Default 404 Handler
-
-handlers.default = function (data,callback) {
-  //callback a statusCode
-  callback(404);
-}
-
-// Ping Handler
-
-handlers.ping = function (data,callback) {
-  callback(200);
-}
-
 // Defining a route variable
 var router = {
-  'ping' : handlers.ping
+  'ping' : handlers.ping,
+  'users' : handlers.users
 }

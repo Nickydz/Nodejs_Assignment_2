@@ -1,4 +1,4 @@
-/*
+  /*
 *
 * Create and export Config variables
 *
@@ -12,14 +12,16 @@ var environments ={};
 environments.development ={
   'httpPort' : 3000,
   'httpsPort' : 3001,
-  'envName': 'Development'
+  'envName': 'Development',
+  'hashPassCode' : 'StagingPasscode'
 }
 
 // Production environment
 environments.production ={
   'httpPort' : 5000,
   'httpsPort' : 5001,
-  'envName': 'Production'
+  'envName': 'Production',
+  'hashPassCode' : 'ProductionPasscode'
 }
 
 
